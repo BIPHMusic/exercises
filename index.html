@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exercises</title>
+  <style>
+    body { font-family: Arial; max-width: 600px; margin: 40px auto; }
+    input, button { padding: 10px; margin: 5px; }
+    #quiz { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Quiz Test</h1>
+
+  <div id="login">
+    <h2>Enter Your Name</h2>
+    <input type="text" id="studentName" placeholder="Your full name" />
+    <button onclick="startQuiz()">Start Quiz</button>
+  </div>
+
+  <div id="quiz">
+    <h2>Simple Quiz</h2>
+    <p>1. What is 2 + 2?</p>
+    <input type="text" id="q1" placeholder="Answer" />
+
+    <p>2. Capital of France?</p>
+    <input type="text" id="q2" placeholder="Answer" />
+
+    <button onclick="submitQuiz()">Submit Quiz</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    let studentName = '';
+
+    function startQuiz() {
+      studentName = document.getElementById('studentName').value.trim();
+      if (!studentName) {
+        alert("Please enter your name");
+        return;
+      }
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('quiz').style.display = 'block';
+    }
+
+    function submitQuiz() {
+      const ans1 = document.getElementById('q1').value.trim();
+      const ans2 = document.getElementById('q2').value.trim();
+
+      let score = 0;
+      if (ans1 === '4' || ans1.toLowerCase() === 'four') score++;
+      if (ans2.toLowerCase() === 'paris') score++;
+
+      const record = {
+        name: studentName,
+        score: score + " / 2",
+        q1: ans1,
+        q2: ans2
+      };
+
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(record)
+      })
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('result').innerHTML = `
+          <h2>Thank you, ${studentName}!</h2>
+          <p>Your score: ${record.score}</p>
+          <p>${data.message}</p>
+          <button onclick="location.reload()">Take Quiz Again</button>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
